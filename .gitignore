@@ -1,0 +1,4 @@
+.idea
+target
+src/ruby/spec/spec-config.json
+*.sw*
