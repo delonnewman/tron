@@ -1,6 +1,8 @@
-ENV[RACK_ENV] = 'development' unless ENV['RACK_ENV']
+require 'yaml'
+require 'bundler'
+Bundler.require(:default, :development)
+require_relative 'lib/tron'
 
-require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "tron"
@@ -13,11 +15,13 @@ end
 Jeweler::RubygemsDotOrgTasks.new
 
 def db_url
-  
+  Tron.load_config! :database do |h|
+    "#{h['adapter']}://#{h['user']}:#{h['password']}@#{h['host']}/#{h['database']}"
+  end
 end
 
-desc "Run tests in ./spec"
-task :test do
+desc "Run spec in ./spec"
+task :spec do
   Dir['spec/*spec*.rb'].each do |test|
     sh "rspec #{test}"
   end
@@ -31,11 +35,11 @@ end
 namespace :db do
   desc 'run migrations with sequel command'
   task :migrate do
-    sh "sequel -em db/migrations"
+    sh "sequel -Em db/migrations #{db_url}"
   end
 
   desc 'dump schema to db/schema.rb'
   task :dump do
-    sh "sequel -S db/schema.rb"
+    sh "sequel -S db/schema.rb #{db_url}"
   end
 end

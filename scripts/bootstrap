@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+apt-add-repository -y ppa:chris-lea/node.js
+
+# Update sources:
+apt-get update
+
+# Install development tools:
+apt-get -y install build-essential
+
+# Extras for RubyGems and Rails:
+apt-get -y install zlib1g-dev libssl-dev
+
+# Readline Dev on Ubuntu 12.04 LTS:
+apt-get -y install libreadline-gplv2-dev
+
+# Install some nokogiri dependencies:
+apt-get -y install libxml2 libxml2-dev libxslt1-dev
+
+# Apache, Postgres, Git, CURL, Node, Subversion:
+apt-get -y install apache2 postgresql postgresql-client libpq-dev git-core curl nodejs subversion
+
+# Ruby:
+cd /tmp
+git clone https://github.com/sstephenson/ruby-build.git
+cd ruby-build
+./install.sh
+ruby-build 2.0.0-p451 /usr/local
+
+# Passenger:
+gem install passenger
+
+# Vim, GNU Screen:
+apt-get -y vim screen
+
+# Upack Toolbox:
+cd /tmp
+git clone https://github.com/delonnewman/dotfiles.git
+cd dotfiles
+rake
+
+# Setup App:
+gem install bundler
+cd /vagrant
+bundle install --system

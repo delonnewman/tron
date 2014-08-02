@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+sudo -u postgres createdb tron
+sudo -u postgres createdb tron_development
+sudo -u postgres createdb tron_test
+
+sudo -u postgres psql <<SQL
+  CREATE USER tron WITH PASSWORD 'test';
+  GRANT all ON DATABASE tron TO tron;
+  GRANT all ON DATABASE tron_development TO tron;
+  GRANT all ON DATABASE tron_test TO tron;
+SQL

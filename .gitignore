@@ -2,3 +2,7 @@
 target
 src/ruby/spec/spec-config.json
 *.sw*
+.vagrant
+config/database.yml
+config/secret.yml
+config/id_rsa*

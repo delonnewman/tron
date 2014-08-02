@@ -26,9 +26,14 @@ GEM
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
     coderay (1.1.0)
+    coffee-script (2.3.0)
+      coffee-script-source
+      execjs
+    coffee-script-source (1.7.1)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.2.5)
+    execjs (2.2.1)
     faraday (0.9.0)
       multipart-post (>= 1.2, < 3)
     git (1.2.8)
@@ -46,6 +51,7 @@ GEM
       tilt
     hashie (3.2.0)
     highline (1.6.21)
+    hike (1.2.3)
     httpi (2.2.4)
       rack
     jeweler (2.0.1)
@@ -81,6 +87,8 @@ GEM
       multi_json (~> 1.3)
       multi_xml (~> 0.5)
       rack (~> 1.2)
+    pg (0.17.1)
+    pg (0.17.1-x64-mingw32)
     pony (1.10)
       mail (>= 2.0)
     pry (0.10.0)
@@ -125,7 +133,7 @@ GEM
     savon_model (1.1.0)
       httpi (>= 0.7.8)
       savon (>= 0.8.2)
-    sequel (4.12.0)
+    sequel (4.2.0)
     sinatra (1.4.5)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -137,12 +145,22 @@ GEM
       rack-test
       sinatra (~> 1.4.0)
       tilt (~> 1.3)
+    sinatra_warden (0.3.2)
+      sinatra (>= 1.0.0)
+      warden (~> 1.0)
     slop (3.6.0)
+    sprockets (2.12.1)
+      hike (~> 1.2)
+      multi_json (~> 1.0)
+      rack (~> 1.0)
+      tilt (~> 1.1, != 1.3.0)
     systemu (2.6.4)
     thread_safe (0.3.4)
     tilt (1.4.1)
     uuid (2.3.7)
       macaddr (~> 1.0)
+    warden (1.2.3)
+      rack (>= 1.0)
     wasabi (3.3.0)
       httpi (~> 2.0)
       mime-types (< 2.0.0)
@@ -152,19 +170,26 @@ GEM
       nokogiri (~> 1.3)
 
 PLATFORMS
+  ruby
   x64-mingw32
 
 DEPENDENCIES
   capybara
+  coffee-script
   haml
   jeweler
+  pg
   pony
   pry
+  rack-test
   rake
   rspec
   rspec-support
   sass
-  sequel
+  sequel (= 4.2.0)
   sinatra
   sinatra-contrib
+  sinatra_warden
+  sprockets
   vista-hui_data (~> 0.1.0)!
+  warden
