@@ -17,7 +17,7 @@ class TestApp < Sinatra::Base
 
   get '/admin' do
     authenticate!
-    'You\'re inside!'
+    "Hey there! #{current_user}!"
   end
 end
 
@@ -43,7 +43,7 @@ describe 'tron middleware interface', type: :feature do
       fill_in 'verify', with: CONFIG[:verify]
     end
     click_button 'Log in'
-    expect(page).to have_content "You're inside"
+    expect(page).to have_content 'Hey there! Tester!'
   end
 
   it 'should reject an unactivated user with valid vista credentials' do

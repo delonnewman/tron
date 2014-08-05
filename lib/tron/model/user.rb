@@ -28,6 +28,10 @@ module Tron
       )
     end
 
+    def to_s
+      name
+    end
+
     private
 
     def resolve_symbol(obj, klass)
