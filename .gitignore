@@ -6,3 +6,4 @@ src/ruby/spec/spec-config.json
 config/database.yml
 config/secret.yml
 config/id_rsa*
+spec/spec-config.json

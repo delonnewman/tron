@@ -32,6 +32,11 @@ task :setup do
   sh "bundle"
 end
 
+desc "Open console in application environment"
+task :pry do
+  sh "bundle exec pry -r ./lib/tron"
+end
+
 namespace :db do
   desc 'run migrations with sequel command'
   task :migrate do

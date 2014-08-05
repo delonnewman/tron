@@ -18,6 +18,8 @@ GEM
       gyoku (>= 0.4.0)
       nokogiri
     backports (3.6.0)
+    bcrypt (3.1.7)
+    bcrypt (3.1.7-x64-mingw32)
     builder (3.2.2)
     capybara (2.4.1)
       mime-types (>= 1.16)
@@ -101,6 +103,8 @@ GEM
       slop (~> 3.4)
       win32console (~> 1.3)
     rack (1.5.2)
+    rack-flash3 (1.0.5)
+      rack
     rack-protection (1.5.3)
       rack
     rack-test (0.6.2)
@@ -133,7 +137,7 @@ GEM
     savon_model (1.1.0)
       httpi (>= 0.7.8)
       savon (>= 0.8.2)
-    sequel (4.2.0)
+    sequel (4.13.0)
     sinatra (1.4.5)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -174,6 +178,7 @@ PLATFORMS
   x64-mingw32
 
 DEPENDENCIES
+  bcrypt
   capybara
   coffee-script
   haml
@@ -181,12 +186,13 @@ DEPENDENCIES
   pg
   pony
   pry
+  rack-flash3
   rack-test
   rake
   rspec
   rspec-support
   sass
-  sequel (= 4.2.0)
+  sequel
   sinatra
   sinatra-contrib
   sinatra_warden
