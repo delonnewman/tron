@@ -14,6 +14,7 @@ gem 'sass'
 gem 'coffee-script'
 gem 'rack-flash3'
 gem 'bcrypt'
+gem 'monad-maybe'
 
 group :development do
   gem 'pry'

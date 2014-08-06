@@ -183,6 +183,7 @@ DEPENDENCIES
   coffee-script
   haml
   jeweler
+  monad-maybe
   pg
   pony
   pry

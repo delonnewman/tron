@@ -32,4 +32,3 @@ module Tron
 end
 
 require_relative 'tron/model'
-require_relative 'tron/middleware/app'

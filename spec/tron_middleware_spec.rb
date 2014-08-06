@@ -1,15 +1,9 @@
 require_relative 'helper'
 require_relative '../lib/tron/middleware/app'
-require_relative '../lib/tron/middleware/helpers'
+require_relative '../lib/tron/middleware/sinatra'
 
 class TestApp < Sinatra::Base
-  configure do
-    use Tron::Middleware
-  end
-
-  helpers do
-    include Tron::WardenHelpers
-  end
+  register Tron::Sinatra
 
   get '/' do
     'This is the front door'

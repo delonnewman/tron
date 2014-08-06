@@ -1,5 +1,6 @@
 require 'vista/hui_data'
 require 'vista/kernel_hash'
+require 'monad/maybe'
 
 module Tron
   class User < Sequel::Model
@@ -7,7 +8,7 @@ module Tron
 
     def self.authenticate?(params)
       if find(email: params[:email], activated: true)
-        res = Vista::HuiData.login(site_code: '459', access_code: Vista::KernelHash.encrypt(params[:access]), verify_code: Vista::KernelHash.encrypt(params[:verify]))
+        res = Vista::HuiData.login(site_code: params[:site], access_code: Vista::KernelHash.encrypt(params[:access]), verify_code: Vista::KernelHash.encrypt(params[:verify]))
         if res.return.match /^\d+$/
           true
         else
@@ -18,14 +19,22 @@ module Tron
       end
     end
 
-    def add_permission(per, args={})
+    def grant(per, args={})
       app = args[:for] || raise('application is required, specified by :for')
       
-      UserPermission.create(
-        user: self,
-        permission: resolve_symbol(per, Permission),
-        application: resolve_symbol(app, Application)
-      )
+      UserPermission.create user: self, permission: eval_sym(per, Permission), application: eval_sym(app, Application)
+    end
+
+    def can?(per, args={})
+      app = args[:for]
+
+      if app
+        u = UserPermission.find user: self, permission: eval_sym(per, Permission), application: eval_sym(app, Application)
+        not u.nil?
+      else
+        ps = Permission.where(name: eval_sym(per, Permission).to_maybe.name.to_s).map(&:users).select { |us| us.include?(self) }
+        not ps.empty?
+      end
     end
 
     def to_s
@@ -34,7 +43,7 @@ module Tron
 
     private
 
-    def resolve_symbol(obj, klass)
+    def eval_sym(obj, klass)
       obj.is_a?(Symbol) ? klass.find(name: obj.to_s) : obj
     end
   end
