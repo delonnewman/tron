@@ -1,10 +1,16 @@
 require_relative 'helper'
 require_relative '../lib/tron/admin/app'
 
+Capybara.app = Tron::Admin::App
+
 describe 'tron admin interface' do
   it 'should allow CRUD operations on users'
   it 'should allow CRUD operations on permissions' 
   it 'should allow CRUD operations on user permissions'
   it 'should allow CRUD operations on applications'
   it 'should send invitation email to user to setup account permissions for a given application'
+
+  it 'should activate user when passed the user_id and activation_key' do
+    
+  end
 end

@@ -7,8 +7,13 @@ module Tron
     many_to_many :permissions, join_table: :user_permissions
 
     def self.authenticate?(params)
+      site   = params[:site]   || raise(':site is required')
+      access = params[:access] || raise(':access is required')
+      verify = params[:verify] || raise(':verify is required')
+      email  = params[:email]  || raise(':email is required')
+
       if find(email: params[:email], activated: true)
-        res = Vista::HuiData.login(site_code: params[:site], access_code: Vista::KernelHash.encrypt(params[:access]), verify_code: Vista::KernelHash.encrypt(params[:verify]))
+        res = Vista::HuiData.login site_code: site, access_code: Vista::KernelHash.encrypt(access), verify_code: Vista::KernelHash.encrypt(verify)
         if res.return.match /^\d+$/
           true
         else
@@ -19,10 +24,19 @@ module Tron
       end
     end
 
+    def self.activate!(params)
+
+    end
+
+    alias activated? activated
+
     def grant(per, args={})
-      app = args[:for] || raise('application is required, specified by :for')
+      app = eval_sym(args[:for] || raise('application is required, specified by :for'), Application)
       
-      UserPermission.create user: self, permission: eval_sym(per, Permission), application: eval_sym(app, Application)
+      p = Permission.find(name: eval_sym(per, Permission).to_maybe.name.to_s)
+      raise "Cannot grant permission #{p} for #{app}, #{p} works only for #{p.application}" unless p.application.nil? or app == p.application
+
+      UserPermission.create user: self, permission: eval_sym(per, Permission), application: app
     end
 
     def can?(per, args={})
@@ -35,6 +49,10 @@ module Tron
         ps = Permission.where(name: eval_sym(per, Permission).to_maybe.name.to_s).map(&:users).select { |us| us.include?(self) }
         not ps.empty?
       end
+    end
+
+    def cannot?(per, args)
+      not can? per, args || {}
     end
 
     def to_s

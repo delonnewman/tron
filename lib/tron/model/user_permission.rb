@@ -10,5 +10,11 @@ module Tron
     extend Forwardable
 
     def_delegators :permission, :name, :description
+
+    plugin :validation_helpers
+    def validate
+      super
+      validates_unique [ :user_id, :application_id, :permission_id ]
+    end
   end
 end
