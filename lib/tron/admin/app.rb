@@ -1,42 +1,52 @@
 require 'sinatra/base'
-require_relative '../middleware/sinatra'
+require 'sinatra/static_assets'
+require_relative '../../sinatra/tron'
+require 'monad/maybe'
 
 module Tron
   module Admin
-    class App < Sinatra::Base
-      register Tron::Sinatra
+    class App < ::Sinatra::Base
+      register ::Sinatra::Tron
   
       get '/activate' do
-        @user = User.activate!(params)
-
-        if @user.activated?
+        if User.activateable? params
           haml :activation
         else
           haml :activation_error
         end
       end
+
+      post '/activate' do
+        @user = User.activate(params)
+
+        if @user.activated?
+          haml :activation_success
+        else
+          haml :activation_error
+        end
+      end
   
-      before do
+      before '/users*' do
         authenticate!
       end
   
-      get 'users' do
+      get '/users' do
         current_user.can? :list_users, for: :tron
       end
   
-      post 'users' do
+      post '/users' do
         current_user.can? :add_users, for: :tron
       end
   
-      get 'users/:id' do
+      get '/users/:id' do
         current_user.can? :view_user, for: :tron
       end
   
-      put 'users/:id' do
+      put '/users/:id' do
         current_user.can? :update_user, for: :tron
       end
   
-      delete 'users/:id' do
+      delete '/users/:id' do
         current_user.can? :delete_user, for: :tron
       end
 

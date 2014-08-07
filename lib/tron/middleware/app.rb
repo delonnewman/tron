@@ -20,7 +20,7 @@ module Tron
         end
   
         def authenticate!
-          if user = User.authenticate?(params)
+          if user = User.authenticate(params)
             success!(user, 'Successfully logged in')
           else
             fail!('Could not login')

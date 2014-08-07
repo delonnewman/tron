@@ -1,34 +1,108 @@
 require 'vista/hui_data'
 require 'vista/kernel_hash'
 require 'monad/maybe'
+require 'digest'
+require 'bcrypt'
 
 module Tron
   class User < Sequel::Model
     many_to_many :permissions, join_table: :user_permissions
 
-    def self.authenticate?(params)
-      site   = params[:site]   || raise(':site is required')
-      access = params[:access] || raise(':access is required')
-      verify = params[:verify] || raise(':verify is required')
-      email  = params[:email]  || raise(':email is required')
+    plugin :validation_helpers
+    def validate
+      super
+      validates_unique :email
+    end
 
-      if find(email: params[:email], activated: true)
-        res = Vista::HuiData.login site_code: site, access_code: Vista::KernelHash.encrypt(access), verify_code: Vista::KernelHash.encrypt(verify)
-        if res.return.match /^\d+$/
-          true
-        else
-          false
-        end
+    def self.authenticate?(params)
+      !!authenticate(params)
+    end
+
+    def self.authenticate(params)
+      email = params[:email] || raise(':email is required')
+
+      if (user = find email: email, activated: true) && user.authenticate?(params)
+        user
+      else
+        nil
+      end
+    end
+
+    def self.activate(params)
+      find_by_email_and_activation_key(params[:email], params[:key]).to_maybe.activate(params).value
+    end
+
+    def self.activateable?(params)
+      !!find_by_email_and_activation_key(params[:email], params[:key])
+    end
+
+    def self.find_by_email_and_activation_key(email, key)
+      (user = find email: email) && ((key + user.salt) == user.activation_key)
+      user
+    end
+
+    def activation_key
+      BCrypt::Password.new(crypted_activation_key)
+    end
+
+    def salted_access_code
+      BCrypt::Password.new(crypted_access_code)
+    end
+
+    def authenticate?(params)
+      access = params[:access] || raise(':access is required')
+
+      if salted_access_code == access + salt
+        vista_authenticate? params
       else
         false
       end
     end
 
-    def self.activate!(params)
+    def vista_authenticate?(params)
+      site   = params[:site]   || raise(':site is required')
+      access = params[:access] || raise(':access is required')
+      verify = params[:verify] || raise(':verify is required')
 
+      res = Vista::HuiData.login site_code: site, access_code: Vista::KernelHash.encrypt(access), verify_code: Vista::KernelHash.encrypt(verify)
+      res.return.match(/^\d+$/) ? true : false
+    end
+
+    def activate(params)
+      if vista_authenticate? params
+        code = crypt(params[:access] + salt)
+        update(activated: true, crypted_access_code: code)
+      end
+      self
     end
 
     alias activated? activated
+
+    # Generates activation salt, key and crypted key + salt
+    #     User#generate_activation_crypt # => [ key, salt, crypt ]
+    #
+    # where `key` is a SHA256 hash, `salt` is a SHA256 hash,
+    # and `crypt` is an BCrypted concatenation of `key` and `salt`.
+    def generate_activation_crypt
+      salt  = Digest::SHA256.hexdigest(srand.to_s)
+      key   = Digest::SHA256.hexdigest(srand.to_s)
+      crypt = BCrypt::Password.create(key + salt)
+      [ key, salt, crypt ]
+    end
+
+    # Uses `User#generate_activation_crypt` to generate a key,
+    # salt and crypted key, saves the crypted key and salt to
+    # the data base and returns the key.
+    #     User#set_activation_key! # => key
+    #
+    # where `key` is a SHA256 hash.
+    #
+    # See User#generate_activation_crypt
+    def set_activation_key!
+      key, salt, crypt = generate_activation_crypt
+      update(crypted_activation_key: crypt, salt: salt)
+      key
+    end
 
     def grant(per, args={})
       app = eval_sym(args[:for] || raise('application is required, specified by :for'), Application)
@@ -63,6 +137,10 @@ module Tron
 
     def eval_sym(obj, klass)
       obj.is_a?(Symbol) ? klass.find(name: obj.to_s) : obj
+    end
+
+    def crypt(str)
+      BCrypt::Password.create(str)
     end
   end
 end

@@ -1,0 +1,19 @@
+%h1 Welcome
+%p Enter your VistA credentials to activate your account.
+
+%form{ action: 'activate', method: 'post' }
+  %fieldset
+    %p
+      %label{ for: 'site' } Site Code
+      %select{ name: 'site' }
+        %option{ value: '459', selected:true } 459
+    %p
+      %label{ for: 'access' } Access Code
+      %input{ type: 'text', name: 'access' }
+    %p
+      %label{ for: 'verify' } Verify Code
+      %input{ type: 'text', name: 'verify' }
+    %input{ type: 'hidden', name: 'key', value: params[:key] }
+    %input{ type: 'hidden', name: 'email', value: params[:email] }
+
+  %input{ type: 'submit', value: 'Activate' }

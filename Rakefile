@@ -39,12 +39,17 @@ end
 
 namespace :db do
   desc 'run migrations with sequel command'
-  task :migrate do
-    sh "sequel -Em db/migrations #{db_url}"
+  task :migrate, [ :version ] do |t, args|
+    sh "sequel -Em db/migrations #{"-M #{args[:version]}" if args[:version]} #{db_url}"
   end
 
   desc 'dump schema to db/schema.rb'
   task :dump do
     sh "sequel -S db/schema.rb #{db_url}"
+  end
+
+  desc 'run db/seed.rb'
+  task :seed do
+    sh 'ruby db/seed.rb'
   end
 end

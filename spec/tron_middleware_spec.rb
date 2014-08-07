@@ -1,9 +1,9 @@
 require_relative 'helper'
 require_relative '../lib/tron/middleware/app'
-require_relative '../lib/tron/middleware/sinatra'
+require_relative '../lib/sinatra/tron'
 
 class TestApp < Sinatra::Base
-  register Tron::Sinatra
+  register Sinatra::Tron
 
   get '/' do
     'This is the front door'
