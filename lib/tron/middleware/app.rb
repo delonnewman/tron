@@ -11,15 +11,19 @@ require_relative 'helpers'
 module Tron
   class Middleware < Sinatra::Base
     configure do
+      enable :sessions
+      enable :logging
+
       Warden::Manager.serialize_into_session { |u| u.id }
       Warden::Manager.serialize_from_session { |io| User[id] }
   
       Warden::Strategies.add(:vista) do
         def valid?
-          params[:email] && params[:access] && params[:verify] 
+          params[:email] && params[:site] && params[:access] && params[:verify] 
         end
   
         def authenticate!
+          p params
           if user = User.authenticate(params)
             success!(user, 'Successfully logged in')
           else
@@ -32,7 +36,7 @@ module Tron
       use Rack::Session::Cookie, secret: Tron::Session.secret
       use Rack::Flash, accessorize: [ :error, :success ]
       use Warden::Manager do |config|
-        config.scope_defaults :default, strategies: [:vista], action: 'login'
+        config.scope_defaults :default, strategies: [:vista], action: 'unauthenticated'
         config.failure_app = self
       end
       use Rack::Protection
@@ -43,16 +47,27 @@ module Tron
     end
 
     get '/login' do
+      logger.info "#{request.request_method} - #{request.path_info}"
       haml :login
     end
 
     post '/login' do
+      logger.info "#{request.request_method} - #{request.path_info}"
+      flash[:success] = warden.message
+      redirect session[:return_to]
+    end
+
+    post '/unauthenticated' do
+      logger.info "#{request.request_method} - #{request.path_info}"
       session[:return_to] = env['warden.options'][:attempted_path]
-      flash.error = warden.message
+      flash[:error] = warden.message
+      p warden.message
+      p flash[:error]
       redirect to '/login'
     end
 
-    get 'logout' do
+    get '/logout' do
+      logger.info "#{request.request_method} - #{request.path_info}"
       logout
     end
   end

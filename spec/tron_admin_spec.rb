@@ -1,13 +1,25 @@
 require_relative 'helper'
 require_relative '../lib/tron/admin/app'
+require_relative '../db/seed'
 
 Capybara.app = Tron::Admin::App
 
 describe 'tron admin interface', type: :feature do
   feature 'CRUD operations on users' do
-    it 'can list users'
-    it 'can add users' do
+    before do
+      seed_db
+    end
 
+    after do
+      delete_all Tron::UserPermission, Tron::Permission,Tron::Application, Tron::User
+    end
+
+    it 'can list users' do
+      do_login email: CONFIG[:admin_email] # default admin user email
+      visit '/users'
+      expect(page).to have_selector '#users'
+    end
+    it 'can add users' do
     end
     it 'can view user' do
       

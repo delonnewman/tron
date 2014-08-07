@@ -8,17 +8,31 @@ module Tron
     end
   
     def config(name)
-      YAML.load_file File.join(File.dirname(__FILE__), '..', "config/#{name}.yml")
+      file = File.join(File.dirname(__FILE__), '..', "config/#{name}.yml")
+      raise "#{file} does not exist" unless File.exists? file
+      h = YAML.load_file file
+      symbolize_keys h
     end
 
     def load_config!(name, e=env, &blk)
-      begin
-        cfg = config(:database)[e]
-        blk ? blk.call(cfg) : cfg
-      rescue => e
-        puts "Error: #{e.message}"
-        exit 1
+      cfg = config(name)[e]
+      raise "there is no #{name} configuration for a #{e} environment" unless cfg
+      blk ? blk.call(cfg) : cfg
+    end
+
+    def symbolize_keys(h)
+      new = {}
+      h.each_pair do |k, v|
+        val = if v.respond_to? :each_pair
+                symbolize_keys v
+              else
+                v
+              end
+
+        new[k.to_sym] = val
+        new[k] = val
       end
+      new
     end
   end
 
@@ -27,8 +41,6 @@ module Tron
   DB = load_config! :database do |config|
          Sequel.connect(config)
        end
-
-  SESSION_SECRET = load_config! :secret
 end
 
 require_relative 'tron/model'

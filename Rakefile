@@ -1,7 +1,11 @@
 require 'yaml'
 require 'bundler'
 Bundler.require(:default, :development)
-require_relative 'lib/tron'
+begin
+  require_relative 'lib/tron'
+rescue => e
+  puts "WARN: #{e.message}"
+end
 
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
@@ -40,12 +44,19 @@ end
 namespace :db do
   desc 'run migrations with sequel command'
   task :migrate, [ :version ] do |t, args|
-    sh "sequel -Em db/migrations #{"-M #{args[:version]}" if args[:version]} #{db_url}"
+    sh "sequel -Etm db/migrations #{"-M #{args[:version]}" if args[:version]} #{db_url}"
   end
 
   desc 'dump schema to db/schema.rb'
   task :dump do
-    sh "sequel -S db/schema.rb #{db_url}"
+    sh "sequel -tS db/schema.rb #{db_url}"
+  end
+
+  desc 'drop all tables in the database'
+  task :drop do
+    Tron::DB.tables.each do |t|
+      Tron::DB.drop_table t, cascade: true
+    end
   end
 
   desc 'run db/seed.rb'

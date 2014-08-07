@@ -19,8 +19,12 @@ Capybara.app = TestApp
 
 describe 'tron middleware interface', type: :feature do
   before do
-    Tron::User.create(name: 'Tester', email: 'tester@example.com', activated: true)
-    Tron::User.create(name: 'Tester', email: 'not-activated@example.com', activated: false)
+    create_activated_user
+    create_test_user email: 'not-activated@example.com'
+  end
+
+  after do
+    delete_all Tron::User
   end
 
   it 'should provide a login screen' do

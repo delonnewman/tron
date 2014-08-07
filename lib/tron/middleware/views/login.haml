@@ -1,5 +1,8 @@
 %h1 Login
 
+= if flash[:error]
+  %p.error= flash[:error]
+
 %form{ action: 'login', method: 'post' }
   %fieldset
     %p
@@ -14,9 +17,9 @@
         %option{ value: '459', selected:true } 459
     %p
       %label{ for: 'access' } Access Code
-      %input{ type: 'text', name: 'access' }
+      %input{ type: 'password', name: 'access' }
     %p
       %label{ for: 'access' } Verify Code
-      %input{ type: 'text', name: 'verify' }
+      %input{ type: 'password', name: 'verify' }
 
   %input{ type: 'submit', value: 'Log in' }

@@ -32,10 +32,13 @@ module Tron
   
       get '/users' do
         current_user.can? :list_users, for: :tron
+
+        haml :user_list
       end
   
       post '/users' do
         current_user.can? :add_users, for: :tron
+        redirect to '/users'
       end
   
       get '/users/:id' do
