@@ -5,16 +5,16 @@ require 'sinatra/base'
 require 'warden'
 require 'haml'
 
-require_relative '../../tron'
-require_relative '../session'
 require_relative 'helpers'
+require_relative '../session'
+require_relative '../model'
 
 module Tron
   class Middleware < Sinatra::Base
     MESSAGES = {
-      MISSING_USER:     'Cannot find user',
-      SUCCESSFUL_LOGIN: 'You\'ve successfully logged in',
-      UNSUCCESSFUL_LOGIN: 'Could not login' 
+      MISSING_USER:       'Cannot find user'.freeze,
+      SUCCESSFUL_LOGIN:   'You\'ve successfully logged in'.freeze,
+      UNSUCCESSFUL_LOGIN: 'Could not login'.freeze 
     }.freeze
 
     configure do

@@ -1,3 +1,17 @@
 %h1 Users
 
-#users
+%table#users
+  %thead
+    %tr
+      %th Name
+      %th Email
+      %th Actions
+  %tbody
+    - @users.each do |u|
+      %tr
+        %td= u.name
+        %td= u.email
+        %td
+          %a{ href: url_for("/users/#{u.id}") } View
+        
+      

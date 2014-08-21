@@ -7,6 +7,7 @@ module Tron
   module Admin
     class App < ::Sinatra::Base
       register ::Sinatra::Tron
+      register ::Sinatra::StaticAssets
   
       get '/activate' do
         if User.activateable? params
@@ -31,9 +32,10 @@ module Tron
       end
   
       get '/users' do
-        current_user.can? :list_users, for: :tron
-
-        haml :user_list
+        current_user.can_then :list_users, for: :tron do
+          @users = User.all
+          haml :user_list
+        end
       end
   
       post '/users' do
@@ -42,7 +44,10 @@ module Tron
       end
   
       get '/users/:id' do
-        current_user.can? :view_user, for: :tron
+        current_user.can_then :view_user, for: :tron do
+          @user = User[params[:id]]
+          haml :user_view
+        end
       end
   
       put '/users/:id' do

@@ -55,11 +55,11 @@ describe 'tron admin interface', type: :feature do
       expect(page).to have_content 'Your account has been activated.'
     end
 
-    it 'should fail to activate when passing and invalid activation key' do
-      visit '/activate?key=invalidkey'
+    it 'should fail to activate when passing an invalid activation key' do
+      visit "/activate?email=#{@user.email}&key=invalidkey"
       expect(page).to have_content 'There was an error trying to activate your account'
 
-      visit '/activate?key=adfadfwr42341fr213r21341rqw1235r11eqwrqwerqwerqewrq'
+      visit "/activate?email=#{@user.email}&key=adfadfwr42341fr213r21341rqw1235r11eqwrqwerqwerqewrq"
       expect(page).to have_content 'There was an error trying to activate your account'
     end
   end

@@ -37,8 +37,11 @@ module Tron
     end
 
     def self.find_by_email_and_activation_key(email, key)
-      (user = find email: email) && ((key + user.salt) == user.activation_key)
-      user
+      if (user = find email: email) && (user.activation_key == (key + user.salt))
+        user
+      else
+        nil
+      end
     end
 
     def activation_key
@@ -125,8 +128,14 @@ module Tron
       end
     end
 
-    def cannot?(per, args)
-      not can? per, args || {}
+    def can_then(per, args={})
+      if can?(per, args || {})
+        yield
+      end
+    end
+
+    def cannot?(per, args={})
+      not can?(per, args || {})
     end
 
     def to_s

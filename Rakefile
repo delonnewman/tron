@@ -19,12 +19,6 @@ Jeweler::Tasks.new do |gem|
 end
 Jeweler::RubygemsDotOrgTasks.new
 
-def db_url
-  Tron.load_config! :database do |h|
-    "#{h['adapter']}://#{h['user']}:#{h['password']}@#{h['host']}/#{h['database']}"
-  end
-end
-
 desc "Run spec in ./spec"
 task :spec do
   Dir['spec/*spec*.rb'].each do |test|
@@ -45,12 +39,12 @@ end
 namespace :db do
   desc 'run migrations with sequel command'
   task :migrate, [ :version ] do |t, args|
-    sh "sequel -Etm db/migrations #{"-M #{args[:version]}" if args[:version]} #{db_url}"
+    sh "sequel -Etm db/migrations #{"-M #{args[:version]}" if args[:version]} #{Tron.db_url}"
   end
 
   desc 'dump schema to db/schema.rb'
   task :dump do
-    sh "sequel -tS db/schema.rb #{db_url}"
+    sh "sequel -tS db/schema.rb #{Tron.db_url}"
   end
 
   desc 'drop all tables in the database'

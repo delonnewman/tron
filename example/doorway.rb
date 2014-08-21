@@ -1,5 +1,6 @@
 $:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 require 'sinatra'
+require 'tron'
 require 'tron/session'
 ENV['TRON_SECRET'] = Tron::Session.generate_secret
 require 'sinatra/tron'

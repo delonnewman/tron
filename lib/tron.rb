@@ -7,6 +7,12 @@ module Tron
       ENV['RACK_ENV'] || 'development'
     end
   
+    def db_url(e=env)
+      load_config! :database, e do |h|
+        "#{h['adapter']}://#{h['user']}:#{h['password']}@#{h['host']}/#{h['database']}"
+      end
+    end
+    
     def config(name)
       file = File.join(File.dirname(__FILE__), '..', "config/#{name}.yml")
       raise "#{file} does not exist" unless File.exists? file
