@@ -3,6 +3,7 @@ require 'rack/flash'
 require 'rack/protection'
 require 'sinatra/base'
 require 'warden'
+require 'haml'
 
 require_relative '../../tron'
 require_relative '../session'
@@ -10,64 +11,71 @@ require_relative 'helpers'
 
 module Tron
   class Middleware < Sinatra::Base
+    MESSAGES = {
+      MISSING_USER:     'Cannot find user',
+      SUCCESSFUL_LOGIN: 'You\'ve successfully logged in',
+      UNSUCCESSFUL_LOGIN: 'Could not login' 
+    }.freeze
+
     configure do
-      enable :sessions
       enable :logging
 
+      use Rack::Session::Cookie, secret: Tron::Session.secret
+      use Rack::Protection
+
       Warden::Manager.serialize_into_session { |u| u.id }
-      Warden::Manager.serialize_from_session { |io| User[id] }
+      Warden::Manager.serialize_from_session { |id| User[id] }
   
       Warden::Strategies.add(:vista) do
         def valid?
-          params[:email] && params[:site] && params[:access] && params[:verify] 
+          !!(params['email'] && params['site'] && params['access'] && params['verify'])
         end
   
         def authenticate!
-          p params
-          if user = User.authenticate(params)
-            success!(user, 'Successfully logged in')
+          return fail!(MESSAGES[:MISSING_USER]) unless user = User.find(email: params['email'])
+
+          if user.authenticate? Tron.symbolize_keys(params)
+            success!(user, MESSAGES[:SUCCESSFUL_LOGIN])
           else
-            fail!('Could not login')
+            fail!(MESSAGES[:UNSUCCESSFUL_LOGIN])
           end
         end
       end
   
       use Rack::MethodOverride
-      use Rack::Session::Cookie, secret: Tron::Session.secret
       use Rack::Flash, accessorize: [ :error, :success ]
       use Warden::Manager do |config|
         config.scope_defaults :default, strategies: [:vista], action: 'unauthenticated'
         config.failure_app = self
       end
-      use Rack::Protection
     end
 
     helpers do
       include WardenHelpers
     end
 
+    def self.get_or_post(url, &block)
+      get(url, &block)
+      post(url, &block)
+    end
+
     get '/login' do
-      logger.info "#{request.request_method} - #{request.path_info}"
       haml :login
     end
 
     post '/login' do
-      logger.info "#{request.request_method} - #{request.path_info}"
+      authenticate!
       flash[:success] = warden.message
       redirect session[:return_to]
     end
 
-    post '/unauthenticated' do
-      logger.info "#{request.request_method} - #{request.path_info}"
+    get_or_post '/unauthenticated' do
       session[:return_to] = env['warden.options'][:attempted_path]
       flash[:error] = warden.message
-      p warden.message
-      p flash[:error]
       redirect to '/login'
     end
 
     get '/logout' do
-      logger.info "#{request.request_method} - #{request.path_info}"
       logout
     end
   end

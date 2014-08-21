@@ -1,12 +1,11 @@
 require_relative 'helper'
-require_relative '../lib/tron/middleware/app'
 require_relative '../lib/sinatra/tron'
 
 class TestApp < Sinatra::Base
   register Sinatra::Tron
 
   get '/' do
-    'This is the front door'
+    'This is the front door. <a href="/admin">Enter</a>.'
   end
 
   get '/admin' do
@@ -33,7 +32,9 @@ describe 'tron middleware interface', type: :feature do
   end
 
   it 'should authenticate an activated user with valid vista credentials' do
-    visit '/admin'
+    visit '/'
+    expect(page).to have_content 'This is the front door'
+    click_link 'Enter'
     expect(page).to have_content 'Login'
     within('form') do
       fill_in 'email', with: 'tester@example.com'
@@ -77,7 +78,7 @@ describe 'tron middleware interface', type: :feature do
       fill_in 'verify', with: 'invalid-a24132dfewafdsd'
     end
     click_button 'Log in'
-    expect(page).to have_content 'This is the front door'
+    expect(page).to have_content Tron::Middleware::MESSAGES[:UNSUCCESSFUL_LOGIN]
   end
 
   it 'should reject an missing user with valid vista credentials' do
@@ -89,6 +90,6 @@ describe 'tron middleware interface', type: :feature do
       fill_in 'verify', with: CONFIG[:verify]
     end
     click_button 'Log in'
-    expect(page).to have_content 'This is the front door'
+    expect(page).to have_content Tron::Middleware::MESSAGES[:MISSING_USER]
   end
 end

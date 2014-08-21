@@ -4,7 +4,8 @@ Bundler.require(:default, :development)
 begin
   require_relative 'lib/tron'
 rescue => e
-  puts "WARN: #{e.message}"
+  puts '==> INFO: There was an error loading the Tron API. Likely because you\'re unable to connect to your database or your database uninitialized.'
+  puts '          If you\'d like to know more run `rake pry` from the command line and you should get a full stack trace.'
 end
 
 Jeweler::Tasks.new do |gem|

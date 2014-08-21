@@ -41,6 +41,9 @@ module Tron
   DB = load_config! :database do |config|
          Sequel.connect(config)
        end
+
+  puts '==> database configuration loaded successfully.'
 end
 
 require_relative 'tron/model'
+puts '==> models loaded successfully.'

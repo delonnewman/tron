@@ -8,7 +8,7 @@ module Tron
       env['warden']
     end
 
-    def_delegators :warden, :authenticate!, :authenticate?, :logout
+    def_delegators :warden, :authenticate!, :authenticated?, :logout
     def_delegator  :warden, :user, :current_user
   end
 end
