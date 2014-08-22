@@ -8,6 +8,7 @@ require 'haml'
 require_relative 'helpers'
 require_relative '../session'
 require_relative '../model'
+require_relative '../utils'
 
 module Tron
   class Middleware < Sinatra::Base
@@ -18,10 +19,10 @@ module Tron
     }.freeze
 
     configure do
-      enable :logging
-
       use Rack::Session::Cookie, secret: Tron::Session.secret
       use Rack::Protection
+      use Rack::MethodOverride
+      use Rack::Flash, accessorize: [ :error, :success ]
 
       Warden::Manager.serialize_into_session { |u| u.id }
       Warden::Manager.serialize_from_session { |id| User[id] }
@@ -42,12 +43,12 @@ module Tron
         end
       end
   
-      use Rack::MethodOverride
-      use Rack::Flash, accessorize: [ :error, :success ]
       use Warden::Manager do |config|
         config.scope_defaults :default, strategies: [:vista], action: 'unauthenticated'
         config.failure_app = self
       end
+
+      enable :logging
     end
 
     helpers do
