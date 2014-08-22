@@ -22,6 +22,7 @@ group :development do
   gem 'rake'
   gem 'jeweler'
   gem 'sprockets'
+  gem 'shotgun'
 end
 
 group :test do

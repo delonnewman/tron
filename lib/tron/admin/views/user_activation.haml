@@ -1,0 +1,7 @@
+%h1 Activate #{@user}
+
+%p Copy the link below and email to user:
+
+%p
+  - url = url_for "/activate?email=#{u @user.email}&key=#{@key}"
+  %a{ href: url }=h url

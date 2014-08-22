@@ -1,0 +1,32 @@
+!!!
+%html
+  %head
+    %title User Administration - Tron
+    %link{ rel: 'stylesheet', href: '//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css' }
+    %link{ rel: 'stylesheet', href: '//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css' }
+  %body
+    .container-fluid
+      .nav.navbar.navbar-default{ role: 'navigation' }
+        .container-fluid
+          .navbar-header
+            %a.navbar-brand{ href: url_for('/') } Tron
+          .nav.navbar-right
+            %a.btn.btn-default.navbar-btn{ href: url_for('/logout') } Logout
+          .nav.navbar-right
+            %a.navbar-text.navbar-link{ href: url_for(current_user.to_url) } #{current_user}
+
+      - if flash[:error]
+        .alert.alert-danger.alert-dismissible
+          %button.close{ :type => 'button', :'data-dismiss' => 'alert' }
+            %span{ :'aria-hidden' => true } &times;
+          =flash[:error]
+      - if flash[:message]
+        .alert.alert-info.alert-dismissible
+          %button.close{ :type => 'button', :'data-dismiss' => 'alert' }
+            %span{ :'aria-hidden' => true } &times;
+          =flash[:message]
+      =yield
+
+  %script{ src: '//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js' }
+  %script{ src: 'https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js' }
+

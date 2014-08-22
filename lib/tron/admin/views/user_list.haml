@@ -1,6 +1,6 @@
 %h1 Users
 
-%table#users
+%table#users.table.table-striped
   %thead
     %tr
       %th Name
@@ -10,7 +10,8 @@
     - @users.each do |u|
       %tr
         %td= u.name
-        %td= u.email
+        %td
+          %a{ href: "mailto:#{u.email}" }= u.email
         %td
           %a{ href: url_for("/users/#{u.id}") } View
         

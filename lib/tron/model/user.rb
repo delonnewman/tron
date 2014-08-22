@@ -29,10 +29,12 @@ module Tron
     end
 
     def self.activate(params)
+      p params
       find_by_email_and_activation_key(params[:email], params[:key]).to_maybe.activate(params).value
     end
 
     def self.activateable?(params)
+      p params
       !!find_by_email_and_activation_key(params[:email], params[:key])
     end
 
@@ -110,7 +112,7 @@ module Tron
     def grant(per, args={})
       app = eval_sym(args[:for] || raise('application is required, specified by :for'), Application)
       
-      p = Permission.find(name: eval_sym(per, Permission).to_maybe.name.to_s)
+      p = Permission.find(name: eval_sym(per, Permission).to_maybe.name.to_s) || raise("Cannot find permission #{per.inspect}")
       raise "Cannot grant permission #{p} for #{app}, #{p} works only for #{p.application}" unless p.application.nil? or app == p.application
 
       UserPermission.create user: self, permission: eval_sym(per, Permission), application: app
@@ -120,17 +122,11 @@ module Tron
       app = args[:for]
 
       if app
-        u = UserPermission.find user: self, permission: eval_sym(per, Permission), application: eval_sym(app, Application)
+        u = UserPermission.find user: self, permission_id: eval_sym(per, Permission).to_maybe.id.value, application: eval_sym(app, Application)
         not u.nil?
       else
         ps = Permission.where(name: eval_sym(per, Permission).to_maybe.name.to_s).map(&:users).select { |us| us.include?(self) }
         not ps.empty?
-      end
-    end
-
-    def can_then(per, args={})
-      if can?(per, args || {})
-        yield
       end
     end
 
@@ -140,6 +136,10 @@ module Tron
 
     def to_s
       name
+    end
+
+    def to_url(*path)
+      (["/users/#{id}"] + path).join('/')
     end
 
     private

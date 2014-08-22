@@ -76,6 +76,7 @@ describe Tron::User do
       Tron::Application.create(name: :maestro, url: 'http://example.com/maestro')
       dragnet = Tron::Application.create(name: :dragnet, url: 'http://example.com/dragnet')
       Tron::Permission.create(name: :add_levels, description: 'User can add levels to Dragnet', application: dragnet)  
+      Tron::Permission.create(name: :remove_levels, description: 'User can remove levels from Dragnet', application: dragnet)  
       Tron::Permission.create(name: :receive_email, description: 'User can receive email from any App')
     end
 

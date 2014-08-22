@@ -1,0 +1,17 @@
+!!!
+%html
+  %head
+    %title Login
+    %link{ rel: 'stylesheet', href: '//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css' }
+    %link{ rel: 'stylesheet', href: '//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css' }
+  %body
+    .container-fluid
+      - if flash[:error]
+        .alert.alert-danger.alert-dismissible= flash[:error]
+      - if flash[:message]
+        .alert.alert-info.alert-dismissible= flash[:message]
+      =yield
+
+  %script{ src: '//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js' }
+  %script{ src: 'https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js' }
+

@@ -11,7 +11,7 @@ describe 'tron admin interface', type: :feature do
     end
 
     after do
-      delete_all Tron::UserPermission, Tron::Permission,Tron::Application, Tron::User
+      delete_all Tron::UserPermission, Tron::Permission, Tron::Application, Tron::User
     end
 
     it 'can list users' do

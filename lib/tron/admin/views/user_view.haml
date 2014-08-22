@@ -1,1 +1,15 @@
 %h1= @user.name
+
+- if current_user.can? :activate_users, for: :tron
+  %a.btn.btn-danger{ href: url_for(@user.to_url 'activation') } Activate
+
+%table#permissions.table.table-striped
+  %thead
+    %tr
+      %th Application
+      %th Permission
+  %tbody
+    - @user.permissions.each do |p|
+      %tr
+        %td= p.application
+        %td Can #{p.description}

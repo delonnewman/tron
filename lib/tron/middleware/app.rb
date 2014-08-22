@@ -76,7 +76,9 @@ module Tron
     end
 
     get '/logout' do
-      logout
+      warden.logout
+      flash[:message] = "You've been logged out"
+      redirect to '/login'
     end
   end
 end

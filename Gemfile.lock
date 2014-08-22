@@ -139,6 +139,8 @@ GEM
       httpi (>= 0.7.8)
       savon (>= 0.8.2)
     sequel (4.13.0)
+    shotgun (0.9)
+      rack (>= 1.0)
     sinatra (1.4.5)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -198,6 +200,7 @@ DEPENDENCIES
   rspec-support
   sass
   sequel
+  shotgun
   sinatra
   sinatra-contrib
   sinatra-sequel
