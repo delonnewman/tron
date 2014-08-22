@@ -1,0 +1,3 @@
+[submodule "example/dragnet"]
+	path = example/dragnet
+	url = vhahonnewmad@10.170.100.132:/var/webapps/dragnet/.git

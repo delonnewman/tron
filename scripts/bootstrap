@@ -17,8 +17,11 @@ apt-get -y install libreadline-gplv2-dev
 # Install some nokogiri dependencies:
 apt-get -y install libxml2 libxml2-dev libxslt1-dev
 
-# Apache, Postgres, Git, CURL, Node, Subversion:
-apt-get -y install apache2 postgresql postgresql-client libpq-dev git-core curl nodejs subversion
+# Postgres, Git, CURL, Node, Subversion:
+apt-get -y install postgresql postgresql-client libpq-dev git-core curl nodejs subversion
+
+# Passenger Dependencies:
+apt-get -y install apache2 apache2-threaded-dev libapr1-dev libaprutil1-dev libcurl4-openssl-dev
 
 # Ruby:
 cd /tmp

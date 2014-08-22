@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'vista-hui_data', '~> 0.1.0', git: 'git@10.170.100.132:vista-hui-data.git'
+gem 'tron', '~> 0.1.1', git: 'git@10.170.100.132:tron.git'
 gem 'sinatra', require: 'sinatra/base'
 gem 'sinatra-contrib'
 gem 'warden'
