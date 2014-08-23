@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "tron"
-  s.version = "0.1.1"
+  s.version = "0.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Delon Newman"]
-  s.date = "2014-08-22"
+  s.date = "2014-08-23"
   s.description = "Rack based web application and middleware for user user management"
   s.email = "drnewman@phrei.org"
   s.executables = ["tron-generate-secret"]
@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
     "bin/tron-generate-secret",
     "config.ru",
     "config/.keep",
+    "config/database.sample.yml",
     "db/migrations/001_initial_migration.rb",
     "db/migrations/002_add_activated_to_users.rb",
     "db/migrations/003_add_application_id_to_permissions.rb",
@@ -60,16 +61,18 @@ Gem::Specification.new do |s|
     "lib/tron/model/user.rb",
     "lib/tron/model/user_permission.rb",
     "lib/tron/session.rb",
+    "lib/tron/utils.rb",
     "scripts/bootstrap",
     "scripts/setupdbs",
     "spec/admin_spec.rb",
     "spec/helper.rb",
     "spec/middleware_spec.rb",
-    "spec/user_spec.rb"
+    "spec/user_spec.rb",
+    "tron.gemspec"
   ]
   s.homepage = "http://phrei.org"
   s.require_paths = ["lib"]
-  s.rubygems_version = "2.0.14"
+  s.rubygems_version = "2.0.3"
   s.summary = "Rack based web application and middleware for user user management"
 
   if s.respond_to? :specification_version then
