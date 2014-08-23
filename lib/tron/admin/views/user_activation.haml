@@ -1,7 +1,35 @@
 %h1 Activate #{@user}
 
-%p Copy the link below and email to user:
+%p Copy the message below and email to user:
+
+#{@user},
+
+%p
+  You can activate your new account with the by clicking the link below:
 
 %p
   - url = url_for "/activate?email=#{u @user.email}&key=#{@key}"
-  %a{ href: url }=h url
+  %a{ href: url }=url
+
+%p
+  When you click the link your browser will warn you about the website security certificate
+  %strong click, “Continue to this website (not recommended)”
+  to pass through the warning.
+
+%p
+  After you get passed the warning a page requesting that you enter your VistA credentials should open.
+
+%p
+  Once you do you should be able to log into Dragnet by going to:
+  %a{ href: 'https://10.170.100.132/dragnet' } https://10.170.100.132
+  and entering your VA email address and your VistA credentials when it prompts you to do so.
+
+%p
+  I would encourage you to save the link to Dragnet as a bookmark.
+
+%p
+  --
+  %br
+  Delon Newman
+  %br
+  Data Manager for GRADE &amp; CONFIRM
