@@ -1,0 +1,6 @@
+production:
+  adapter: postgres
+  host: localhost
+  database: tron
+  user: tron
+  password: 

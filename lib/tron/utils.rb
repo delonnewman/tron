@@ -11,7 +11,7 @@ module Tron
     end
     
     def config(name)
-      file = File.join(File.dirname(__FILE__), '..', "config/#{name}.yml")
+      file = File.join(File.dirname(__FILE__), '..', '..', "config/#{name}.yml")
       raise "#{file} does not exist" unless File.exists? file
       h = YAML.load_file file
       symbolize_keys h

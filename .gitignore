@@ -8,3 +8,6 @@ config/secret.yml
 config/id_rsa*
 spec/spec-config.json
 config/admin.yml
+tmp/
+.bundle/
+vendor/
