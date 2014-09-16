@@ -1,12 +1,16 @@
-require 'vista/hui_data'
-require 'vista/kernel_hash'
-require 'monad/maybe'
 require 'digest'
 require 'bcrypt'
+require 'logger'
+require 'monad/maybe'
+require 'vista/hui_data'
+require 'vista/kernel_hash'
 
 module Tron
   class User < Sequel::Model
     many_to_many :permissions, join_table: :user_permissions
+
+    LOG = Logger.new(STDOUT)
+    LOG.level = Logger::DEBUG
 
     plugin :validation_helpers
     def validate
@@ -60,17 +64,24 @@ module Tron
       if salted_access_code == access + salt
         vista_authenticate? params
       else
+        LOG.debug("Given access code (#{access}) did not match stored access code")
         false
       end
     end
 
-    def vista_authenticate?(params)
+    def vista_authenticate(params)
       site   = params[:site]   || raise(':site is required')
       access = params[:access] || raise(':access is required')
       verify = params[:verify] || raise(':verify is required')
 
+      LOG.debug("access code: #{access}, verify code: #{verify}")
       res = Vista::HuiData.login site_code: site, access_code: Vista::KernelHash.encrypt(access), verify_code: Vista::KernelHash.encrypt(verify)
-      res.return.match(/^\d+$/) ? true : false
+      LOG.debug("HuiData Login response: #{res.inspect}")
+      res.return
+    end
+
+    def vista_authenticate?(params)
+      vista_authenticate(params).match(/^\d+$/) ? true : false
     end
 
     def activate(params)
