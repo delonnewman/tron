@@ -6,16 +6,15 @@ require 'warden'
 require 'haml'
 
 require_relative 'helpers'
-require_relative '../session'
 require_relative '../model'
 require_relative '../utils'
 
 module Tron
   class Middleware < Sinatra::Base
     MESSAGES = {
-      MISSING_USER:       'Cannot find user'.freeze,
+      MISSING_USER:       'Cannot find user, make sure you entered your email correctly'.freeze,
       SUCCESSFUL_LOGIN:   'You\'ve successfully logged in'.freeze,
-      UNSUCCESSFUL_LOGIN: 'Could not login'.freeze 
+      UNSUCCESSFUL_LOGIN: 'Could not login: %WHY%'.freeze 
     }.freeze
 
     configure do
@@ -35,10 +34,11 @@ module Tron
         def authenticate!
           return fail!(MESSAGES[:MISSING_USER]) unless user = User.find(email: params['email'])
 
-          if user.authenticate? Tron.symbolize_keys(params)
+          begin
+            user.authenticate! Tron.symbolize_keys(params)
             success!(user, MESSAGES[:SUCCESSFUL_LOGIN])
-          else
-            fail!(MESSAGES[:UNSUCCESSFUL_LOGIN])
+          rescue => e
+            fail!(e.message)
           end
         end
       end
@@ -67,7 +67,11 @@ module Tron
     post '/login' do
       authenticate!
       flash[:success] = warden.message
-      redirect session[:return_to]
+      if session[:return_to] == '/login'
+        redirect to '/'
+      else
+        redirect session[:return_to]
+      end
     end
 
     get_or_post '/unauthenticated' do

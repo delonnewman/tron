@@ -10,7 +10,11 @@ module Tron
     many_to_many :permissions, join_table: :user_permissions
 
     LOG = Logger.new(STDOUT)
-    LOG.level = Logger::DEBUG
+    LOG.level = if ENV['RACK_ENV'] == 'development' || ENV['RACK_ENV'].nil?
+                  Logger::DEBUG
+                else
+                  Logger::ERROR
+                end
 
     plugin :validation_helpers
     def validate
@@ -22,10 +26,10 @@ module Tron
       !!authenticate(params)
     end
 
-    def self.authenticate(params)
+    def self.authenticate!(params)
       email = params[:email] || raise(':email is required')
 
-      if (user = find email: email, activated: true) && user.authenticate?(params)
+      if (user = find email: email, activated: true) && user.authenticate!(params)
         user
       else
         nil
@@ -58,14 +62,14 @@ module Tron
       BCrypt::Password.new(crypted_access_code)
     end
 
-    def authenticate?(params)
+    def authenticate!(params)
       access = params[:access] || raise(':access is required')
 
       if salted_access_code == access + salt
-        vista_authenticate? params
+        vista_authenticate! params
       else
         LOG.debug("Given access code (#{access}) did not match stored access code")
-        false
+        raise "There was an error logging in.  Make sure you entered you access code correctly, otherwise please see your system administrator"
       end
     end
 
@@ -77,11 +81,25 @@ module Tron
       LOG.debug("access code: #{access}, verify code: #{verify}")
       res = Vista::HuiData.login site_code: site, access_code: Vista::KernelHash.encrypt(access), verify_code: Vista::KernelHash.encrypt(verify)
       LOG.debug("HuiData Login response: #{res.inspect}")
-      res.return
+      res
     end
 
     def vista_authenticate?(params)
-      vista_authenticate(params).match(/^\d+$/) ? true : false
+      res = vista_authenticate(params)
+      if res.code != 0
+        true
+      else
+        false
+      end
+    end
+
+    def vista_authenticate!(params)
+      res = vista_authenticate(params)
+      if res.code != 0
+        res.code
+      else
+        raise "There was an error authenticating with VistA credentials: #{res.message}"
+      end
     end
 
     def activate(params)

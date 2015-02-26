@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'vista-hui_data', '~> 0.1.0', git: 'git@10.170.100.132:vista-hui-data.git'
+gem 'vista-hui_data', path: 'vendor/vista-hui-data'
 gem 'sinatra', require: 'sinatra/base'
 gem 'sinatra-contrib'
 gem 'warden'
