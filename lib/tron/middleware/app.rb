@@ -37,6 +37,8 @@ module Tron
           begin
             user.authenticate! Tron.symbolize_keys(params)
             success!(user, MESSAGES[:SUCCESSFUL_LOGIN])
+          rescue Vista::HuiData::CallException => e
+            fail!("There was an error communicating with the authentication service")
           rescue => e
             fail!(e.message)
           end
