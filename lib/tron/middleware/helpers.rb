@@ -12,7 +12,17 @@ module Tron
     def_delegator  :warden, :user, :current_user
   end
 
-  module UserHelpers
+  module Helpers
+    extend self
+
+    def u(*args)
+      URI.encode(*args).gsub('+', '%2B')
+    end
+
+    def h(*args)
+      CGI.escape_html(*args)
+    end
+
     def if_current_user_can(per, args={}, &blk)
       if current_user.can?(per, args || {})
         blk.call

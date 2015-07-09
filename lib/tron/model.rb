@@ -1,3 +1,4 @@
+require 'sequel'
 require_relative 'model/user_permission'
 require_relative 'model/user'
 require_relative 'model/application'

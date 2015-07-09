@@ -15,15 +15,7 @@ module Tron
       register ::Sinatra::StaticAssets
 
       helpers do
-        include Tron::UserHelpers
-
-        def u(*args)
-          URI.encode(*args).gsub('+', '%2B')
-        end
-
-        def h(*args)
-          CGI.escape_html(*args)
-        end
+        include Tron::Helpers
       end
   
       get '/activate' do

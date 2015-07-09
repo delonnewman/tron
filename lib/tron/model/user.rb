@@ -42,12 +42,20 @@ module Tron
     end
 
     def self.activateable?(params)
-      p params
-      !!find_by_email_and_activation_key(params[:email], params[:key])
+      user = find_by_email_and_activation_key(params[:email], params[:key])
+      if user.nil?
+        false
+      else
+        if user.actication_expires_on.nil?
+          false
+        else
+          user.activation_expires_on > Date.today
+        end
+      end
     end
 
     def self.find_by_email_and_activation_key(email, key)
-      if (user = find email: email) && (user.activation_key == (key + user.salt))
+      if (user = find email: email) && (user.activation_key == (key + user.activation_salt))
         user
       else
         nil
@@ -69,8 +77,19 @@ module Tron
         vista_authenticate! params
       else
         LOG.debug("Given access code (#{access}) did not match stored access code")
-        raise "There was an error logging in.  Make sure you entered you access code correctly, otherwise please see your system administrator"
+        raise "There was an error logging in.  Make sure you entered your access code correctly, otherwise please see your system administrator"
       end
+    end
+
+    def email_authenticate?(params)
+      key    = params[:key] or raise ':key is required'
+      access = params[:access] or raise ':access is required'
+
+      activation_key == key + activation_salt and salted_access_code == access + salt
+    end
+
+    def email_authenticate!(params)
+      email_authenticate?(params) or raise "There was an error logging in. Make sure you entered your access code correctly, otherwise please see your system administator"
     end
 
     def vista_authenticate(params)
@@ -86,6 +105,7 @@ module Tron
 
     def vista_authenticate?(params)
       res = vista_authenticate(params)
+      p res
       if res.code != 0
         true
       else
@@ -132,9 +152,9 @@ module Tron
     # where `key` is a SHA256 hash.
     #
     # See User#generate_activation_crypt
-    def set_activation_key!
+    def set_activation_key!(expiration=nil)
       key, salt, crypt = generate_activation_crypt
-      update(crypted_activation_key: crypt, salt: salt)
+      update(crypted_activation_key: crypt, activation_salt: salt, activation_expires_on: expiration || (Date.today + 1))
       key
     end
 

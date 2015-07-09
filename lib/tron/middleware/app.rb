@@ -4,6 +4,8 @@ require 'rack/protection'
 require 'sinatra/base'
 require 'warden'
 require 'haml'
+require 'timeout'
+require 'pony'
 
 require_relative 'helpers'
 require_relative '../model'
@@ -21,7 +23,7 @@ module Tron
       use Rack::Session::Cookie, secret: Tron::Session.secret
       use Rack::Protection
       use Rack::MethodOverride
-      use Rack::Flash, accessorize: [ :error, :success ]
+      use Rack::Flash, accessorize: [:error, :success]
 
       Warden::Manager.serialize_into_session { |u| u.id }
       Warden::Manager.serialize_from_session { |id| User[id] }
@@ -35,18 +37,44 @@ module Tron
           return fail!(MESSAGES[:MISSING_USER]) unless user = User.find(email: params['email'])
 
           begin
-            user.authenticate! Tron.symbolize_keys(params)
-            success!(user, MESSAGES[:SUCCESSFUL_LOGIN])
+            Timeout::timeout(15) do
+              user.authenticate! Tron.symbolize_keys(params)
+              success!(user, MESSAGES[:SUCCESSFUL_LOGIN])
+            end
           rescue Vista::HuiData::CallException => e
             fail!("There was an error communicating with the authentication service")
+          rescue Timeout::Error => e
+            key = user.set_activation_key!
+            Pony.mail(:to => user.email,
+                      :from => 'Delon Newman <delon.newman@va.gov>',
+                      :subject => "Dragnet Authentication",
+                      :body => "Please open the following link to log into Dragnet:\n\nhttps://10.170.100.132/emailLogin?email=#{Tron::Helpers.u(user.email)}&key=#{key}")
+            fail!('The authentication service failed. Please check your email for a message from "Delon Newman" with an link to authenticate.')
           rescue => e
             fail!(e.message)
           end
         end
       end
+
+      Warden::Strategies.add(:email) do
+        def valid?
+          !!(params['email'] && params['key'] && params['access'])
+        end
   
+        def authenticate!
+          return fail!(MESSAGES[:MISSING_USER]) unless user = User.find(email: params['email'])
+
+          begin
+            user.email_authenticate! Tron.symbolize_keys(params)
+            success!(user, MESSAGES[:SUCCESSFUL_LOGIN])
+          rescue => e
+            fail!(e.message)
+          end
+        end
+      end
+
       use Warden::Manager do |config|
-        config.scope_defaults :default, strategies: [:vista], action: 'unauthenticated'
+        config.scope_defaults :default, strategies: [:vista, :email], action: 'unauthenticated'
         config.failure_app = self
       end
 
@@ -64,6 +92,21 @@ module Tron
 
     get '/login' do
       haml :login
+    end
+
+    get '/emailLogin' do
+      @email, @key = params[:email], params[:key]
+      haml :emailLogin
+    end
+
+    post '/emailLogin' do
+      warden.authenticate(:email)
+      flash[:success] = warden.message
+      if session[:return_to] == '/emailLogin'
+        redirect to '/'
+      else
+        redirect session[:return_to]
+      end
     end
 
     post '/login' do
