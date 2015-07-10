@@ -102,7 +102,7 @@ module Tron
     post '/emailLogin' do
       warden.authenticate(:email)
       flash[:success] = warden.message
-      if session[:return_to] == '/emailLogin'
+      if session[:return_to] == '/emailLogin' or session[:return_to] == '/login'
         redirect to '/'
       else
         redirect session[:return_to]
