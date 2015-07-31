@@ -41,9 +41,7 @@ module Tron
               user.authenticate! Tron.symbolize_keys(params)
               success!(user, MESSAGES[:SUCCESSFUL_LOGIN])
             end
-          rescue Vista::HuiData::CallException => e
-            fail!("There was an error communicating with the authentication service")
-          rescue Timeout::Error => e
+          rescue => e
             key = user.set_activation_key!
             Pony.mail(:to => user.email,
                       :from => 'Delon Newman <delon.newman@va.gov>',
