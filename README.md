@@ -44,7 +44,3 @@ AUTHOR
 ======
 
 Delon Newman
-
-[Pacific Health Research & Eductation Institite](http://phrei.org)
-
-[delon.newman@va.gov](mailto:delon.newman@va.gov)
